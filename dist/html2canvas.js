@@ -2688,7 +2688,8 @@ function Proxy(src, proxyUrl, document) {
 var proxyCount = 0;
 
 function ProxyURL(src, proxyUrl, document) {
-    var supportsCORSImage = ('crossOrigin' in new Image());
+    // not sure what was the perpose of this line but it doesn't call proxy if it's true so I changed it.
+    var supportsCORSImage = !('crossOrigin' in new Image());
     var callback = createCallback(supportsCORSImage);
     var url = createProxyUrl(proxyUrl, src, callback);
     return (supportsCORSImage ? Promise.resolve(url) : jsonp(document, url, callback).then(function(response) {
@@ -2697,6 +2698,10 @@ function ProxyURL(src, proxyUrl, document) {
 }
 
 function jsonp(document, url, callback) {
+    // check if the proxy property does not exists and create it otherwise it will never be called.
+	if (!window.html2canvas.hasOwnProperty('proxy')) {
+	    window.html2canvas.proxy = {};
+	}
     return new Promise(function(resolve, reject) {
         var s = document.createElement("script");
         var cleanup = function() {
